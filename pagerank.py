@@ -181,11 +181,12 @@ def iterate_pagerank(corpus, damping_factor):
         
             sumPart = 0
             for link in reverseCorpus[page]:
+                # If the page has no link, we assume it has a link to every pages
                 if numLinks[link] == 0:
                     sumPart += PreviousPageRankDict[link]/num_pages
                 else:
                     sumPart += PreviousPageRankDict[link]/numLinks[link]
-            
+            # Calulation of the pageRank for each page
             PageRankDict[page] = (((1-damping_factor)/num_pages) + (damping_factor*sumPart))
             
 
