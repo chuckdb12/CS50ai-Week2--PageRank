@@ -184,8 +184,13 @@ def iterate_pagerank(corpus, damping_factor):
                 # Lets first calculate the sumation part
                 sumPart = 0
                 for i in reverseCorpus:
-                    # We assume that each page links to the current page
-                    sumPart += PreviousPageRankDict[i]/numLinks[i]
+                    if i == page:
+                        sumPart += PreviousPageRankDict[i]/len(corpus)
+                    else:
+
+                        # We assume that each page links to the current page
+
+                        sumPart += PreviousPageRankDict[i]/numLinks[i]
                 
                 PageRankDict[page] = (1-damping_factor)/len(corpus) + (damping_factor*sumPart)
             else:
