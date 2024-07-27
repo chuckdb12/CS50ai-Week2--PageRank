@@ -179,28 +179,29 @@ def iterate_pagerank(corpus, damping_factor):
         
         for page in corpus:
            
-            if numLinks[page] == 0:
+            #if numLinks[page] == 0:
                 
                 # Lets first calculate the sumation part
-                sumPart = 0
-                for i in reverseCorpus:
-                    if i == page:
-                        sumPart += PreviousPageRankDict[i]/len(corpus)
-                    else:
-
+                #sumPart = 0
+                #for i in reverseCorpus:
+                    #if i == page:
+                        #sumPart += PreviousPageRankDict[i]/len(corpus)
+                    #else:
                         # We assume that each page links to the current page
-
-                        sumPart += PreviousPageRankDict[i]/numLinks[i]
+                        #sumPart += PreviousPageRankDict[i]/numLinks[i]
                 
-                PageRankDict[page] = (1-damping_factor)/len(corpus) + (damping_factor*sumPart)
-            else:
+                #PageRankDict[page] = (1-damping_factor)/len(corpus) + (damping_factor*sumPart)
+            #else:
                 
-                sumPart = 0
-                for i in reverseCorpus[page]:
+            sumPart = 0
+            for i in reverseCorpus[page]:
+                if numLinks[i] == 0:
+                    sumPart += PreviousPageRankDict[i]/num_pages
+                else:
                     sumPart += PreviousPageRankDict[i]/numLinks[i]
-               
-                PageRankDict[page] = (((1-damping_factor)/len(corpus)) + (damping_factor*sumPart))
-                
+            
+            PageRankDict[page] = (((1-damping_factor)/len(corpus)) + (damping_factor*sumPart))
+            
 
         # This section will calculate the new maximun delta value
         maxDelta = 0
