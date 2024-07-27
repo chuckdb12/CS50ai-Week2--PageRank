@@ -178,44 +178,33 @@ def iterate_pagerank(corpus, damping_factor):
     # Iterage on each page and calculae the new pageRange
         
         for page in corpus:
-           
-            #if numLinks[page] == 0:
-                
-                # Lets first calculate the sumation part
-                #sumPart = 0
-                #for i in reverseCorpus:
-                    #if i == page:
-                        #sumPart += PreviousPageRankDict[i]/len(corpus)
-                    #else:
-                        # We assume that each page links to the current page
-                        #sumPart += PreviousPageRankDict[i]/numLinks[i]
-                
-                #PageRankDict[page] = (1-damping_factor)/len(corpus) + (damping_factor*sumPart)
-            #else:
-                
+        
             sumPart = 0
-            for i in reverseCorpus[page]:
-                if numLinks[i] == 0:
-                    sumPart += PreviousPageRankDict[i]/num_pages
+            for link in reverseCorpus[page]:
+                if numLinks[link] == 0:
+                    sumPart += PreviousPageRankDict[link]/num_pages
                 else:
-                    sumPart += PreviousPageRankDict[i]/numLinks[i]
+                    sumPart += PreviousPageRankDict[link]/numLinks[link]
             
-            PageRankDict[page] = (((1-damping_factor)/len(corpus)) + (damping_factor*sumPart))
+            PageRankDict[page] = (((1-damping_factor)/num_pages) + (damping_factor*sumPart))
             
 
         # This section will calculate the new maximun delta value
-        maxDelta = 0
         
-        for j in PageRankDict:
-            currentDelta = PageRankDict[j] - PreviousPageRankDict[j]
-            #print(f'{currentDelta} = {PageRankDict[j]} - {PreviousPageRankDict[j]}')
-            if abs(currentDelta) > abs(maxDelta):
-                maxDelta = abs(currentDelta)
-        #print(maxDelta)
+        # Check each deltas between the old and new value and assing the max to amxDelta
+        maxDelta = max(abs(PageRankDict[page] - PreviousPageRankDict[page]) for page in corpus)
        
         PreviousPageRankDict = PageRankDict.copy()
                     
+    #Before returning the dictionary, we need to normalize
+
+    total = sum(PageRankDict.values())
+
+    for page, rank in PageRankDict.items():
+        PageRankDict[page] = rank/total
+    
     return PageRankDict
+
 
 
 
