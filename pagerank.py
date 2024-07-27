@@ -63,7 +63,7 @@ def transition_model(corpus, page, damping_factor):
 
     #First, we get the number of page linked to by the current page
     linkNumber = len(corpus[page])
-    print(f'Cuurent page : {corpus[page]} number of links : {linkNumber}')
+    #print(f'Cuurent page : {corpus[page]} number of links : {linkNumber}')
     # Number of sites in corpus
     num_elem = len(corpus)
 
@@ -74,7 +74,7 @@ def transition_model(corpus, page, damping_factor):
         prob = 1/num_elem
         for site in corpus:
             probDistr[site] = prob
-        print('Should not be there')
+        #print('Should not be there')
     else:
         for site in corpus:
             if site in corpus[page]:
@@ -114,10 +114,10 @@ def sample_pagerank(corpus, damping_factor, n):
 
     while i > 0:
         if i == n:
-            print(firstPage)
+            #print(firstPage)
             ProbDistr = transition_model(corpus, firstPage, damping_factor)
             First_result = ProbDistr
-            print(ProbDistr)
+            #print(ProbDistr)
             PageRankDict[firstPage] += 1/n
             i -= 1
             
@@ -129,13 +129,13 @@ def sample_pagerank(corpus, damping_factor, n):
                 elements.append(element)
                 prob.append(float(key))
             next_page = random.choices(elements, weights = prob, k = 1)
-            print('Page #' + str(i) + ' : ' + next_page[0])
+            #print('Page #' + str(i) + ' : ' + next_page[0])
             ProbDistr = transition_model(corpus, next_page[0], damping_factor)
             PageRankDict[next_page[0]] += 1/n
             i -= 1
-    print(f'init result : #{initial_result}')
-    print(f'First result : #{First_result}')
-    print(f'Final result : #{PageRankDict}')
+    #print(f'init result : #{initial_result}')
+    #print(f'First result : #{First_result}')
+    #print(f'Final result : #{PageRankDict}')
     return PageRankDict
 
 
@@ -149,95 +149,65 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    # Creation of the initial page rank dictionary
-    PageRankDict = {}
-    # Creation of the dictionary to calculate the max delta values during the iteration
-    PreviousPageRankDict = {}
-    for site in corpus.keys():
-        PageRankDict[site] = 1/len(corpus)
-        PreviousPageRankDict[site] = 1/len(corpus)
+    # Creation of the initial page rank dictionary with 1/n for each page
+    num_pages = len(corpus)
+    PageRankDict = {page: 1 / num_pages for page in corpus}
+    # Creation of th previous values dictionary
+    PreviousPageRankDict = PageRankDict.copy()
 
-    # Find the number of links pointing to each page
+    # Initiate a new dictionary that will containt all the page pointing on the key page
 
-    reverseCorpus = {}
-
-    numLinks = {}
-
-    for page in corpus:
-        reverseCorpus[page] = set()
-        numLinks[page] = 0
+    reverseCorpus = {page: set() for page in corpus}
 
     for page in corpus:
         for link in corpus:
             if page in corpus[link]:
                 reverseCorpus[page].add(link)
-                numLinks[page] += 1
-    print(corpus)
-    print(reverseCorpus)
 
-    #PreviousPageRankDict = PageRankDict
-    #print(PreviousPageRankDict)
+     # Finding the number of links for each page
+
+    numLinks = {page: len(corpus[page]) for page in corpus}
+                
     maxDelta = float('inf')
-    # Each iteration of the while loop, we will check for the max delta value between the last results and
-    # the new. When this max value will be < 0.001, we converge
-    #print(corpus)
+   
     iteration = 0
     
+    # Loop unitil the max delta value is samller than 0.001 (meaning it has converged)
     while maxDelta > 0.001:
         iteration += 1
     # Iterage on each page and calculae the new pageRange
         
         for page in corpus:
-            #print(page)
-            # lets find the number of link that links to p
-            #numLinks = 0
-            #for site in corpus:
-                #if page in corpus[site]:
-                    #numLinks += 1
-
-           #numLinks = len(reverseCorpus[page])
-            
-
-            #numLinks = len(corpus[page])
-            # If number of links is zero, numlink = nb pages in coprpus
-            if numLinks == 0:
-                numLinks = len(corpus)
-                print("Should not appear")
-                # Lets first calcullate the sumation part
+           
+            if numLinks[page] == 0:
+                
+                # Lets first calculate the sumation part
                 sumPart = 0
-                for i in corpus:
-                    sumPart += PageRankDict[i]/numLinks
+                for i in reverseCorpus:
+                    # We assume that each page links to the current page
+                    sumPart += PreviousPageRankDict[i]/len(reverseCorpus[i])
                 
                 PageRankDict[page] = (1-damping_factor)/len(corpus) + (damping_factor*sumPart)
             else:
-                #print(f"Previous1 : {PreviousPageRankDict}")
                 
-                #print(numLinks)
-                #print(len(corpus))
                 sumPart = 0
-                for i in corpus[page]:
+                for i in reverseCorpus[page]:
                     sumPart += PreviousPageRankDict[i]/numLinks[i]
-                #print((1-damping_factor)/len(corpus) + (damping_factor*sumPart))
-                #print(f'res = {damping_factor*sumPart} + {(1-damping_factor)/len(corpus)}')
+               
                 PageRankDict[page] = (((1-damping_factor)/len(corpus)) + (damping_factor*sumPart))
-                #print(PageRankDict[page])
-        # Find the maximum deltaValue
-        #print(f"Previous2 : {PreviousPageRankDict}")
-        #print(PageRankDict)
-        #print(f"iteration #{iteration}")
+                
+
+        # This section will calculate the new maximun delta value
         maxDelta = 0
         
         for j in PageRankDict:
             currentDelta = PageRankDict[j] - PreviousPageRankDict[j]
-            print(f'{currentDelta} = {PageRankDict[j]} - {PreviousPageRankDict[j]}')
+            #print(f'{currentDelta} = {PageRankDict[j]} - {PreviousPageRankDict[j]}')
             if abs(currentDelta) > abs(maxDelta):
                 maxDelta = abs(currentDelta)
-        print(maxDelta)
-        #PreviousPageRankDict = PageRankDict
-        for site in corpus.keys():
-            PreviousPageRankDict[site] = PageRankDict[site]
-
-            
+        #print(maxDelta)
+       
+        PreviousPageRankDict = PageRankDict.copy()
                     
     return PageRankDict
 
